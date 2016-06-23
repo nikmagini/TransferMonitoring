@@ -14,3 +14,8 @@ The next step is to evaluate different ML algorithms for a regression problem, a
 Finally the predictions need to be fed back to PhEDEx  routing,  so that it can use a better estimate of transfer rates/latencies when choosing the best path to transfer each file.
 
 After this is completed, additional goals for this project will be to extend the regression study also to data transferred using the xrootd protocol (for which we have raw data on HDFS) and to PhEDEx  transfer logs (which need to be imported into HDFS)
+
+Tools to review:
+  python language
+  ML libraries
+  HDFS, spark
