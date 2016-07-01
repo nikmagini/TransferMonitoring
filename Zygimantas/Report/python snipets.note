@@ -1,0 +1,15 @@
+## runing script relative to script
+http://stackoverflow.com/questions/15216784/where-does-python-look-for-files-in-a-script
+
+Note that this path can be relative (possibly empty), so it is still important that the current working directory of your script be the same as the directory when your script was read by the python interpreter (which is when __file__ is set). It is important to convert the possibly relative script_dir into an absolute path if the current working directory is changed later in the code:
+
+```python
+# If script_dir is relative, the current working directory is used, here. This is correct if the current
+# working directory is the same as when the script was read by the Python interpreter (which is
+# when __file__ was set):
+script_dir = os.path.abspath(script_dir)
+```
+
+
+##  
+
