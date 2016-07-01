@@ -19,7 +19,7 @@ wdir/
 *.libsvm*
 *.txt*
 *.ids
-*.json
+#*.json
 *.model
 *.predicted
 *.gif
