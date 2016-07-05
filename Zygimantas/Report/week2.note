@@ -10,3 +10,9 @@
 
 
 ## 2016-07-05
+
+# jsonUtilies.py script can save processed records to CSV file:
+- all atributes are sorted
+- fields are printed according to atributes
+- placeholder for empty variables can be set 
+- csv file created in dedault location or to given location

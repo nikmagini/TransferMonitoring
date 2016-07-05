@@ -64,18 +64,16 @@ def stringToHash(string):
 def JsonListToCSV(jsonList, keysSet, outputPath):
     """ that procesed list and output to cvs """
     # TODO: implement
-    outputhFile = open('/tmp/EmployData.csv', 'w')
-    csvwriter = csv.writer(outputPath)
-    count = 0
-    for record in jsonList:
-        print(record)
-        print(type(record))
-        if count == 0:
-            header = list(record)
-            csvwriter.writerow(header)
-            count += 1
-
-        csvwriter.writerow(list(record.values()))
+    outputhFile = open(outputPath, 'w')
+    csvwriter = csv.DictWriter(outputhFile,fieldnames = keysSet, restval = cvs_field_ph )
+    csvwriter.writeheader()
+    for record_dict in jsonList:
+        # print keysSet
+        # if count == 0:
+        #     header = list(keysSet)
+        #     csvwriter.writerow(header)
+        #     count += 1
+        csvwriter.writerow(record_dict)
     outputhFile.close()
     return 0
 
@@ -141,7 +139,7 @@ def main(argv):
     if debug == True:
         print keys
 
-    # JsonListToCSV()
+    JsonListToCSV(records_list,records_keys,outputfile)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
