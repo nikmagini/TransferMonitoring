@@ -1,0 +1,12 @@
+### week 2 
+
+## 2016-07-04
+- coninuing to implement functions to jsonUtilies.py
+- carcase of the main function can take input and output parameters and has default parameters
+- readFileToList(filename) function reads custom formaded .json file (each line has records EOT character)
+- flatten_dict(dict) function takes json object represented in dictonary filetipe and flatens it with dot notation
+- solution to convert string to integer found, needs to be tested
+- debug option addded 
+
+
+## 2016-07-05

@@ -9,6 +9,10 @@ import csv
 import os
 import sys
 import getopt  # http://www.tutorialspoint.com/python/python_command_line_arguments.htm
+import hashlib
+
+# global variable which if true outputs debug data
+debug = False
 
 
 def flatten_dict(d):
@@ -25,6 +29,8 @@ def flatten_dict(d):
 
 
 def readFileToList(filename):
+    escapes = ''.join([chr(char) for char in range(1, 32)])
+
     """Function takes path of file,
     read records one by one and puts it Json objects to list """
     # Hint: maybe I could write it as a generator using yield
@@ -34,32 +40,38 @@ def readFileToList(filename):
         # print json_file.readline
         # -----------
         # create list of special control charracters
-        escapes = ''.join([chr(char) for char in range(1, 32)])
-        a = 0
+        # a = 0
         list = []
-        print("-----------")
+        if debug == True:
+            print("-----------")
         for line in json_file:
             json_dict = flatten_dict(json.loads(line.translate(None, escapes)))
             list.append(json_dict)
-            a += 1
-            # print ("-------------------")
-    print list[0]
-    print "-------------"
-    print list[5]
+            # a += 1
+    if debug == True:
+        print list[0]
+        print "-------------"
+        print list[5]
     return list
 
+# unnecessary function
 
-def flatenJsonObject(json_object):
-    """Function that will take json object record and flaten nested atibutes to
-    example transfer.start, transfer.end and etc. """
-    # TODO: implement
-    return list
+# def flatenJsonObject(json_object):
+#     """Function that will take json object record and flaten nested atibutes
+#     to example transfer.start, transfer.end and etc. """
+#     # TODO: implement
+#     return list
 
 
-def stringToHash(atribute):
+def stringToHash(string):
     """it will take atribute, probably string and return integer"""
+    return int(hashlib.sha224(string).hexdigest(), 16)
+
+
+def JsonListToCSV(jsonList):
+    """ that procesed list and output to cvs """
     # TODO: implement
-    return smt
+    return
 
 
 def main(argv):
@@ -73,7 +85,7 @@ def main(argv):
     inputfile = os.path.join(working_path, "data/smallJsonData.json")
     outputfile = '/tmp/JsonToCsvDefault.csv'
     try:
-        opts, args = getopt.getopt(argv, "hi:o:", ["ifile=", "ofile="])
+        opts, args = getopt.getopt(argv, "hi:o:d", ["ifile=", "ofile="])
     except getopt.GetoptError:
         print 'test.py -i <inputfile> -o <outputfile>'
         sys.exit(2)
@@ -88,26 +100,20 @@ def main(argv):
             inputfile = arg
         elif opt in ("-o", "--ofile"):
             outputfile = arg
+        elif opt in ("-d"):
+            global debug
+            debug = True
     # print 'Input file is "', inputfile
     # print 'Output file is "', outputfile
 
-    try:
-        os.path.isfile(inputfile)
-    except Exception, e:
-        raise e
-        # TODO: finish it
-        print ("the input file specified does not exist:\n + ")
-
-
-    # the ugly way to run on test data
-    # os.path.dirname(os.path.abspath(__file__))
-
-    os.path.isfile('./file.txt')
-
+    # print os.path.isfile(inputfile)
+    if (os.path.isfile(inputfile) == True):
+        pass
+    else:
+        print("the input file specified does not exist:\n" + inputfile)
+        sys.exit(2)
     list = readFileToList(inputfile)
 
-    # file_path
-    # TODO: for startes list nice list
 
 if __name__ == '__main__':
     main(sys.argv[1:])
