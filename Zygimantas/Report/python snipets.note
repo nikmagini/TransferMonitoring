@@ -1,5 +1,5 @@
 
-## runing script relative to script
+##  path relative to running script
 http://stackoverflow.com/questions/15216784/where-does-python-look-for-files-in-a-script
 
 Note that this path can be relative (possibly empty), so it is still important that the current working directory of your script be the same as the directory when your script was read by the python interpreter (which is when __file__ is set). It is important to convert the possibly relative script_dir into an absolute path if the current working directory is changed later in the code:
@@ -63,4 +63,21 @@ with open('names.csv', 'w') as csvfile:
     writer.writerow({'first_name': 'Baked', 'last_name': 'Beans'})
     writer.writerow({'first_name': 'Lovely', 'last_name': 'Spam'})
     writer.writerow({'first_name': 'Wonderful', 'last_name': 'Spam'})
+```
+
+## typecast
+
+Really, you just compare the string to whatever you expect to accept as representing true, so you can do this:
+```python
+s == 'True'
+Or to checks against a whole bunch of values:
+
+s in ['true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh']
+Be cautious when using the following:
+
+>>> bool("foo")
+True
+>>> bool("")
+False
+Empty strings evaluate to False, but everything else evaluates to True. So this should not be used for any kind of parsing purposes.
 ```

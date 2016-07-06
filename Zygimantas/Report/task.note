@@ -7,3 +7,27 @@
 - missing values = default -1
 - numpy, sckitlearn, pandas, scypy, pymongo  
 - clone DECAF
+
+## 07-05
+Hi,
+
+thanks!
+
+a few comments:
+
+1) probably for our purposes the md5 128-bit hash function is enough, I don't think that we need the 224-bit sha224 function
+
+2) could you please clean up from the repository work-in-progress files like test.py that you are no longer using?
+(on the other hand, feel free to write scripts that test your libraries of course)
+
+3) not critical - but instead of "if Debug print" you can consider looking up the 'logging' library which already provides different levels of logging.
+
+No need to create a different pull request: if you push the changes to your repo while this pull request is open, it will be automatically updated.
+
+### csv document isues
+- Excel doce 635 eilute adler stulpelyje yra nesamoninga info, kuri ateina is Json documento 634 eilutes ir gadina reikalus. Cia calc blogai interpretuoja ar blogai issaugau ?
+Ats - calc blogai interpretuoja.
+- python interpretens json file acord to json struture - if there is no "" surouding the values, it is ether _int_ or _bool_ , otherwise it is a string.  So I have to check if values should be casted to different types.
+- adler32 laukelis atrodo idomus - turetu buti _int_, bet gaunu kaska panasaus i 68e800b9
+
+## 07-06

@@ -1,7 +1,7 @@
 """
 File       : jsonUtilities.py
 Author     : Zygimantas Matonis
-Description: Helper functions to extract records from json document
+Description: Script to convert Json records to CSV
 """
 
 import json
@@ -58,14 +58,41 @@ def readFileToList(filename):
 
 def stringToHash(string):
     """it will take atribute, probably string and return a big integer"""
-    return int(hashlib.sha224(string).hexdigest(), 16)
+    return int(hashlib.md5(string).hexdigest(), 16)
+
+
+def recordsListTransform(records_list, records_keys):
+    """Function will take list of dictonaries and transfor
+    its artibutes.
+    If it is a string, transform it to either primary type [int|boolean|etc]
+    or to hash number"""
+
+    def RepresentsInt(s):
+        try:
+            int(s)
+            return True
+        except ValueError:
+            return False
+            # TODO: finish and check code
+    for record in records_list:
+        for key, value in record:
+            if isinstance(value, basestring):
+                if(RepresentsInt(value)):
+                    record[key] = int(value)
+                elif(value.upper() == 'TRUE'):
+                    record[key] = True
+                elif(value.upper() == 'False'):
+                    record[key] = False
+
+    return 1
 
 
 def JsonListToCSV(jsonList, keysSet, outputPath):
     """ that procesed list and output to cvs """
     # TODO: implement
     outputhFile = open(outputPath, 'w')
-    csvwriter = csv.DictWriter(outputhFile,fieldnames = keysSet, restval = cvs_field_ph )
+    csvwriter = csv.DictWriter(
+        outputhFile, fieldnames=keysSet, restval=cvs_field_ph)
     csvwriter.writeheader()
     for record_dict in jsonList:
         # print keysSet
@@ -121,9 +148,8 @@ def main(argv):
 
     # ---------------------------------
 
-    # TODO: when I have a big list, iterate trough it and collect all the keys and sort them
-    # TODO: when writing files back, check atribute if its a string - if yes, cast to number with hash function
-    # TODO: if atribute missing, write placeholder
+    # TODO: when writing files back, check atribute if its a string - if yes,
+    # cast to number with hash function
 
     # TODO: if it is a folder, itarate trough folder, give each file to the
     # function and concetinate results
@@ -139,7 +165,10 @@ def main(argv):
     if debug == True:
         print keys
 
-    JsonListToCSV(records_list,records_keys,outputfile)
+    for key, value in records_list[0].items():
+        print key, value, type(value)
+
+    # JsonListToCSV(records_list,records_keys,outputfile)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
