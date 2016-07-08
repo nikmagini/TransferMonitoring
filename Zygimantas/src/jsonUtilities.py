@@ -12,19 +12,24 @@ import getopt  # http://www.tutorialspoint.com/python/python_command_line_argume
 import hashlib
 
 # global variables
-debug = True        # to output debug info
+debug = False        # to output debug info
 field_delimter = "|"  # to seperate flatened fields
 cvs_field_ph = -1    # placeholder for empty atribute
 cvs_field_sph = -2    # placeeholder for blanklines
 cvs_field_nph = -3    # placeeholder for null
+# list of fields that I should put first in CSV file
+important_fields = ['tr_id', 'timestamp_tr_st',
+                    'timestamp_tr_comp', 'timestamp_tr_dlt']
 
-def RepresentsInt(s):
+
+def representsInt(s):
     """check if string can be typecasted to int"""
     try:
         int(s)
         return True
     except ValueError:
         return False
+
 
 def flatten_dict(d):
     """takes dict object and flatens it using dot notation"""
@@ -37,6 +42,17 @@ def flatten_dict(d):
                 yield key, value
 
     return dict(items())
+
+
+def reorderKeyList(key_list, import_k_l):
+    """put important keys in front of list"""
+    for key in import_k_l:
+        try:
+            key_list.remove(key)
+            key_list.append(key)
+        except Exception:
+            print("There wasn't such key: " + key)
+    return key_list
 
 
 def readFolderToList(FolderPath):
@@ -52,18 +68,12 @@ def readFileToList(filename):
     # create list of special control charracters
     escapes = ''.join([chr(char) for char in range(1, 32)])
     with open(filename) as json_file:
-        # employee_parsed = json.load(json_file)
-        # list = json_file.readline
-        # print json_file.readline
-        # -----------
-        # a = 0
         list = []
         if debug is True:
             print("-----------")
         for line in json_file:
             json_dict = flatten_dict(json.loads(line.translate(None, escapes)))
             list.append(json_dict)
-            # a += 1
     if debug is True:
         print list[0]
         print "-------------"
@@ -84,7 +94,7 @@ def recordsListTransform(records_list):
     for record in records_list:
         for key, value in record.items():
             if isinstance(value, basestring):
-                if(RepresentsInt(value)):
+                if(representsInt(value)):
                     record[key] = int(value)
                 elif(value.upper() == 'TRUE'):
                     record[key] = True
@@ -130,13 +140,10 @@ def addDeltaTimeField(jsonList):
 
 def main(argv):
     """Main function"""
-
     working_path = os.path.dirname(os.path.abspath(__file__))
-    # inpath = os.path.join(working_path, "data/smallJsonData.json")
-    # print path
-
     inputfile = os.path.join(working_path, "data/smallJsonData.json")
     outputfile = '/tmp/JsonToCsvDefault.csv'
+
     try:
         opts, args = getopt.getopt(argv, "hi:o:d", ["ifile=", "ofile="])
     except getopt.GetoptError:
@@ -185,23 +192,21 @@ def main(argv):
     if debug is True:
         print records_keys
 
-    records_list = recordsListTransform(records_list)
-    # if debug == True:
-        # for key, value in records_list[8].items():
-        #     print key, value, type(value)
+    records_keys = reorderKeyList(records_keys, important_fields)
+    # write haseverything to CSV file
+    jsonListToCSV(records_list, records_keys, outputfile + '_org.csv')
 
-    # write everything to CSV file
-    jsonListToCSV(records_list, records_keys, outputfile)
+    # write haseverything to CSV file with hashed values
+    records_list = recordsListTransform(records_list)
+    if debug is True:
+        for key, value in records_list[8].items():
+            print key, value, type(value)
+    jsonListToCSV(records_list, records_keys, outputfile + '_hash.csv')
 
 
 if __name__ == '__main__':
     main(sys.argv[1:])
 
-    # TODO: delete all unecesary commented lines
-    # TODO: add delta field
-    # TODO: add option to iterate trough fields
-    # TODO: delet unecsary files
     # TODO: rearange intresting fields position
-    # TODO: save 2 seperate csv files (before and after hash function)
     # TODO: use log file instead of print (tmp/filename-date.txt(?))
     # TODO: put all variable declaration at the begining of script
