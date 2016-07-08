@@ -1,0 +1,15 @@
+# week 1
+
+## 2016-06-29
+- started configiring workspace
+- reading training material
+
+## 2016-06-30
+- configired workspace and VM,
+- working on json to csv converting
+
+## 2016-07-01
+- started writing jsonUtilies.py which will read and extract and convert json records in custom .json files to .csv file 
+
+## 2016-07-02
+- reading about DCAFPILOT project and http://amslaurea.unibo.it/9136/1/Giommi_Luca_tesi.pdf . 

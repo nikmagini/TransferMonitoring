@@ -1,0 +1,99 @@
+
+##  path relative to running script
+http://stackoverflow.com/questions/15216784/where-does-python-look-for-files-in-a-script
+
+Note that this path can be relative (possibly empty), so it is still important that the current working directory of your script be the same as the directory when your script was read by the python interpreter (which is when __file__ is set). It is important to convert the possibly relative script_dir into an absolute path if the current working directory is changed later in the code:
+
+```python
+# If script_dir is relative, the current working directory is used, here. This is correct if the current
+# working directory is the same as when the script was read by the Python interpreter (which is
+# when __file__ was set):
+script_dir = os.path.abspath(script_dir)
+```
+
+
+##  string to int
+>>> int(hashlib.sha224("Nobody inspects the spammish repetitionsasds jaskdhasjkdhaskd haksjdhakdh askjdh kasdhkashdkja hdkjahkd jahskjd kajshd kash").hexdigest(),16)
+
+## banchmark
+
+```python
+>>> hash_file=hashlib.sha224("sssssssssssssssssss").hexdigest()
+>>> hash_file
+'a3ee550032c6b7152b889a0b8ba727b129bec785f758d951272b1db7'
+>>> int(hash_file,16)
+17263947654114224769821979692689222678070582900186433811358853832119L
+>>> sys.getsizeof(hash_fil)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+NameError: name 'sys' is not defined
+>>> sys.getsizeof(hash_file)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+NameError: name 'sys' is not defined
+>>> import sys
+>>> sys.getsizeof(hash_file)
+93
+>>> sys.getsizeof(hash_file)
+93
+>>> sys.getsizeof(int(hash_file,16))
+56
+>>> sys.getsizeof("sssssssssssssssssss")
+56
+>>> sys.getsizeof(bin(int(hash_file,16)))
+263
+>>> sys.getsizeof(17263947654114224769821979692689222678070582900186433811358853832119L)
+56
+>>> 
+```
+
+
+## dictonaries to csv
+
+https://docs.python.org/2/library/csv.html
+
+```python
+import csv
+
+with open('names.csv', 'w') as csvfile:
+    fieldnames = ['first_name', 'last_name']
+    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+    writer.writeheader()
+    writer.writerow({'first_name': 'Baked', 'last_name': 'Beans'})
+    writer.writerow({'first_name': 'Lovely', 'last_name': 'Spam'})
+    writer.writerow({'first_name': 'Wonderful', 'last_name': 'Spam'})
+```
+
+## typecast
+
+Really, you just compare the string to whatever you expect to accept as representing true, so you can do this:
+```python
+s == 'True'
+Or to checks against a whole bunch of values:
+
+s in ['true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh']
+Be cautious when using the following:
+
+>>> bool("foo")
+True
+>>> bool("")
+False
+Empty strings evaluate to False, but everything else evaluates to True. So this should not be used for any kind of parsing purposes.
+```
+
+```python
+To check if an object o is a string type of a subclass of a string type:
+
+isinstance(o, basestring)
+because both str and unicode are subclasses of basestring.
+```
+
+## rearange postion
+
+```python
+   i = ['title', 'email', 'password2', 'password1', 'first_name', 
+         'last_name', 'next', 'newsletter']
+    a, b = i.index('password2'), i.index('password1')
+    i[b], i[a] = i[a], i[b]
+```
