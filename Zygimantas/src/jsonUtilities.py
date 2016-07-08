@@ -151,18 +151,24 @@ def main(argv):
     inputfile = os.path.join(working_path, "data/smallJsonData.json")
     inputdir = os.path.join(working_path, "data/testFolder")
     outputfile = '/tmp/JsonToCsvDefault'
+    # flag that says if user wants to scan folder instead of 1 file
+    its_a_dir = False
 
     try:
-        opts, args = getopt.getopt(argv, "hi:o:d", ["ifile=", "ofile="])
+        opts, args = getopt.getopt(
+            argv, "hi:o:d", ["ifile=", "ofile=", "dir="])
     except getopt.GetoptError:
         print 'test.py -i <inputfile> -o <outputfile>'
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
             print 'test.py -i <inputfile> -o <outputfile>'
+            print 'test.py --dir <inputdir> -o <outputfile>'
             print "default parameters are taken if arguments are not specified:"
             print "<inputfile>: " + inputfile
-            print "<outputfile>: " + outputfile
+            print "<inputdir>: " + inputdir
+            print "<outputfile>: " + outputfile + '_org.csv'
+            print "<outputfile>: " + outputfile + '_hash.csv'
             sys.exit()
         elif opt in ("-i", "--ifile"):
             inputfile = arg
@@ -171,6 +177,10 @@ def main(argv):
         elif opt in ("-d"):
             global debug
             debug = True
+        elif opt in ("--dir"):
+            its_a_dir = True
+            inputdir = arg
+
     if debug is True:
         print("-----------")
         print 'Input file is "', inputfile
@@ -178,22 +188,28 @@ def main(argv):
         print("-----------")
 
     # check if input file exists
-    if (os.path.isfile(inputfile) is True):
-        pass
-    else:
-        print("the input file specified does not exist:\n" + inputfile)
-        sys.exit(2)
-
-    # check if folder exists
-    # TODO : implement
-
+    # if (os.path.isfile(inputfile) is True):
+    #     pass
+    # else:
+    #     print("the input file specified does not exist:\n" + inputfile)
+    #     sys.exit(2)
     # ---------------------------------
 
-    # TODO: if it is a folder, itarate trough folder, give each file to the
+    # if it is a folder, itarate trough folder, give each file to the
     # function and concetinate results
-    # records_list = readFileToList(inputfile)
-    records_list = readFolderToList(inputdir)
+    try:
+        if its_a_dir is True:
+            records_list = readFolderToList(inputdir)
+        else:
+            records_list = readFileToList(inputfile)
+    except Exception, e:
+        print ("Something went wrong:")
+        print e
+        raise
+        sys.exit(2)
+
     records_list = addDeltaTimeField(records_list)
+
     # take all unique keys from list and put to set and order it
     records_keys = set()
     for item in records_list:
