@@ -58,7 +58,14 @@ def reorderKeyList(key_list, import_k_l):
 def readFolderToList(FolderPath):
     """Function takes path to folder, then"""
     # TODO: for each filename call readFileToList() and concotinate them
-    # TODO: implement
+    records_list = []
+    for i in os.listdir(FolderPath):
+        if i.endswith(".json"):
+            a = os.path.join(FolderPath, i)
+            records_list += readFileToList(a)
+        else:
+            continue
+    return records_list
 
 
 def readFileToList(filename):
@@ -68,17 +75,17 @@ def readFileToList(filename):
     # create list of special control charracters
     escapes = ''.join([chr(char) for char in range(1, 32)])
     with open(filename) as json_file:
-        list = []
+        rec_list = []
         if debug is True:
             print("-----------")
         for line in json_file:
             json_dict = flatten_dict(json.loads(line.translate(None, escapes)))
-            list.append(json_dict)
+            rec_list.append(json_dict)
     if debug is True:
-        print list[0]
+        print rec_list[0]
         print "-------------"
-        print list[5]
-    return list
+        print rec_list[5]
+    return rec_list
 
 
 def stringToHash(string):
@@ -142,7 +149,8 @@ def main(argv):
     """Main function"""
     working_path = os.path.dirname(os.path.abspath(__file__))
     inputfile = os.path.join(working_path, "data/smallJsonData.json")
-    outputfile = '/tmp/JsonToCsvDefault.csv'
+    inputdir = os.path.join(working_path, "data/testFolder")
+    outputfile = '/tmp/JsonToCsvDefault'
 
     try:
         opts, args = getopt.getopt(argv, "hi:o:d", ["ifile=", "ofile="])
@@ -176,11 +184,15 @@ def main(argv):
         print("the input file specified does not exist:\n" + inputfile)
         sys.exit(2)
 
+    # check if folder exists
+    # TODO : implement
+
     # ---------------------------------
 
     # TODO: if it is a folder, itarate trough folder, give each file to the
     # function and concetinate results
-    records_list = readFileToList(inputfile)
+    # records_list = readFileToList(inputfile)
+    records_list = readFolderToList(inputdir)
     records_list = addDeltaTimeField(records_list)
     # take all unique keys from list and put to set and order it
     records_keys = set()
@@ -207,6 +219,5 @@ def main(argv):
 if __name__ == '__main__':
     main(sys.argv[1:])
 
-    # TODO: rearange intresting fields position
     # TODO: use log file instead of print (tmp/filename-date.txt(?))
     # TODO: put all variable declaration at the begining of script
