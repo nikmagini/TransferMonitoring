@@ -12,10 +12,19 @@ import getopt  # http://www.tutorialspoint.com/python/python_command_line_argume
 import hashlib
 
 # global variables
-debug = False        # to output debug info
-field_delimter = "|"  # to seperate slatened fields
+debug = True        # to output debug info
+field_delimter = "|"  # to seperate flatened fields
 cvs_field_ph = -1    # placeholder for empty atribute
+cvs_field_sph = -2    # placeeholder for blanklines
+cvs_field_nph = -3    # placeeholder for null
 
+def RepresentsInt(s):
+    """check if string can be typecasted to int"""
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
 
 def flatten_dict(d):
     """takes dict object and flatens it using dot notation"""
@@ -28,6 +37,12 @@ def flatten_dict(d):
                 yield key, value
 
     return dict(items())
+
+
+def readFolderToList(FolderPath):
+    """Function takes path to folder, then"""
+    # TODO: for each filename call readFileToList() and concotinate them
+    # TODO: implement
 
 
 def readFileToList(filename):
@@ -43,13 +58,13 @@ def readFileToList(filename):
         # -----------
         # a = 0
         list = []
-        if debug == True:
+        if debug is True:
             print("-----------")
         for line in json_file:
             json_dict = flatten_dict(json.loads(line.translate(None, escapes)))
             list.append(json_dict)
             # a += 1
-    if debug == True:
+    if debug is True:
         print list[0]
         print "-------------"
         print list[5]
@@ -61,48 +76,56 @@ def stringToHash(string):
     return int(hashlib.md5(string).hexdigest(), 16)
 
 
-def recordsListTransform(records_list, records_keys):
+def recordsListTransform(records_list):
     """Function will take list of dictonaries and transfor
     its artibutes.
     If it is a string, transform it to either primary type [int|boolean|etc]
     or to hash number"""
-
-    def RepresentsInt(s):
-        try:
-            int(s)
-            return True
-        except ValueError:
-            return False
-            # TODO: finish and check code
     for record in records_list:
-        for key, value in record:
+        for key, value in record.items():
             if isinstance(value, basestring):
                 if(RepresentsInt(value)):
                     record[key] = int(value)
                 elif(value.upper() == 'TRUE'):
                     record[key] = True
-                elif(value.upper() == 'False'):
+                elif(value.upper() == 'FALSE'):
                     record[key] = False
+                elif(value == ""):
+                    record[key] = cvs_field_sph
+                else:
+                    record[key] = stringToHash(value)
+            elif(value is None):
+                record[key] = cvs_field_nph
 
-    return 1
+    return records_list
 
 
-def JsonListToCSV(jsonList, keysSet, outputPath):
-    """ that procesed list and output to cvs """
-    # TODO: implement
+def jsonListToCSV(jsonList, keysSet, outputPath):
+    """Function that proceses list and output results to Csv file"""
     outputhFile = open(outputPath, 'w')
     csvwriter = csv.DictWriter(
         outputhFile, fieldnames=keysSet, restval=cvs_field_ph)
     csvwriter.writeheader()
     for record_dict in jsonList:
-        # print keysSet
-        # if count == 0:
-        #     header = list(keysSet)
-        #     csvwriter.writerow(header)
-        #     count += 1
         csvwriter.writerow(record_dict)
     outputhFile.close()
     return 0
+
+
+def addDeltaTimeField(jsonList):
+    """take list if json dictonaries add to each add atributes"""
+    for record_dict in jsonList:
+        try:
+            record_dict['timestamp_tr_dlt'] = \
+                int(record_dict['timestamp_tr_comp'])\
+                - int(record_dict['timestamp_tr_st'])
+        except Exception, e:
+            if debug is True:
+                print("Something was wrong: ", e)
+        else:
+            pass
+
+    return jsonList
 
 
 def main(argv):
@@ -133,14 +156,14 @@ def main(argv):
         elif opt in ("-d"):
             global debug
             debug = True
-    if debug == True:
+    if debug is True:
         print("-----------")
         print 'Input file is "', inputfile
         print 'Output file is "', outputfile
         print("-----------")
 
     # check if input file exists
-    if (os.path.isfile(inputfile) == True):
+    if (os.path.isfile(inputfile) is True):
         pass
     else:
         print("the input file specified does not exist:\n" + inputfile)
@@ -148,13 +171,10 @@ def main(argv):
 
     # ---------------------------------
 
-    # TODO: when writing files back, check atribute if its a string - if yes,
-    # cast to number with hash function
-
     # TODO: if it is a folder, itarate trough folder, give each file to the
     # function and concetinate results
     records_list = readFileToList(inputfile)
-
+    records_list = addDeltaTimeField(records_list)
     # take all unique keys from list and put to set and order it
     records_keys = set()
     for item in records_list:
@@ -162,13 +182,26 @@ def main(argv):
         records_keys = records_keys.union(set(a))
     records_keys = sorted(records_keys)
 
-    if debug == True:
-        print keys
+    if debug is True:
+        print records_keys
 
-    for key, value in records_list[0].items():
-        print key, value, type(value)
+    records_list = recordsListTransform(records_list)
+    # if debug == True:
+        # for key, value in records_list[8].items():
+        #     print key, value, type(value)
 
-    # JsonListToCSV(records_list,records_keys,outputfile)
+    # write everything to CSV file
+    jsonListToCSV(records_list, records_keys, outputfile)
+
 
 if __name__ == '__main__':
     main(sys.argv[1:])
+
+    # TODO: delete all unecesary commented lines
+    # TODO: add delta field
+    # TODO: add option to iterate trough fields
+    # TODO: delet unecsary files
+    # TODO: rearange intresting fields position
+    # TODO: save 2 seperate csv files (before and after hash function)
+    # TODO: use log file instead of print (tmp/filename-date.txt(?))
+    # TODO: put all variable declaration at the begining of script

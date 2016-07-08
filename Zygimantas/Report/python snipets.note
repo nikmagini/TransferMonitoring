@@ -81,3 +81,19 @@ True
 False
 Empty strings evaluate to False, but everything else evaluates to True. So this should not be used for any kind of parsing purposes.
 ```
+
+```python
+To check if an object o is a string type of a subclass of a string type:
+
+isinstance(o, basestring)
+because both str and unicode are subclasses of basestring.
+```
+
+## rearange postion
+
+```python
+   i = ['title', 'email', 'password2', 'password1', 'first_name', 
+         'last_name', 'next', 'newsletter']
+    a, b = i.index('password2'), i.index('password1')
+    i[b], i[a] = i[a], i[b]
+```

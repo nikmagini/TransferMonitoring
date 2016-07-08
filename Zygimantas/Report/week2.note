@@ -21,3 +21,10 @@
 
 - Noticed that a lot of _int_ atributes are stored as a string, workin on workaround.
 - Working on Nicolos remarks on script.
+
+## 2016-07-07
+
+### Script can transforms data 
+- extract values from _String_ {int|bool}, 
+- put placeholder : for missing field '-1', for unset field '-2'  
+- still thinking how to denote Null ()
