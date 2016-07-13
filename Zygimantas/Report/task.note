@@ -1,3 +1,4 @@
+
 ## 07-01
 - 2.7 python 
 - hexidimical convert to binary or decimal
@@ -34,4 +35,8 @@ Ats - calc blogai interpretuoja.
 
 - hashinam values
 - typecastinam jei galim i int 
-- 
+
+## 07-13
+- https://github.com/KiprasKancys/DMWMAnalytics/blob/master/Popularity/DCAFPilot/src/python/DCAF/ml/model.py#L103
+- 103 eilute pasianalizuotui kaip veikia   
+

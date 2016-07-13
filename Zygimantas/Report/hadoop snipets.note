@@ -1,0 +1,20 @@
+
+# login
+```bash 
+
+ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no zmatonis@analytix
+```
+
+# ls
+```bash
+hdfs dfs -ls -R  /user/wdtmon/fts/2015/09/03/
+
+```
+
+# cheatsheet
+http://blog.matthewrathbone.com/img/hdfs-cheatsheet.pdf
+
+```bash
+ssh  ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no zmatonis@analytix "hdfs dfs -cat <src_in_HDFS> " > <local_dst>
+
+```

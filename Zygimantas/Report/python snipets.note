@@ -97,3 +97,6 @@ because both str and unicode are subclasses of basestring.
     a, b = i.index('password2'), i.index('password1')
     i[b], i[a] = i[a], i[b]
 ```
+
+## python benchmark script 
+https://pypi.python.org/pypi/psutil

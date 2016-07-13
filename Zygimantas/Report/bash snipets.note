@@ -1,0 +1,17 @@
+#benchmark scrpt time 
+```bash 
+[zmatonis@transmonbig2 src]$ time python jsonUtilities.py -i ../../data/20160629_fts_message_sample.json 
+
+real    0m6.177s
+user    0m5.181s
+sys 0m0.126s
+
+```
+
+# vm setup
+```bash
+(cd /data; git clone git://github.com/dmwm/deployment.git cfg && cd cfg && git reset --hard HG1603b)
+
+
+(VER=HG1603b REPO="comp.valya" A=/data/cfg/admin; ARCH=slc6_amd64_gcc493; cd /data; $A/InstallDev -A $ARCH -R comp@$VER -s image -v $VER -r comp=$REPO -p "admin frontend backend mongodb dcafpilot")
+```
