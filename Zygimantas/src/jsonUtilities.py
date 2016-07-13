@@ -57,14 +57,14 @@ def reorderKeyList(key_list, import_k_l):
 
 def readFolderToList(FolderPath):
     """Function takes path to folder, then"""
-    # TODO: for each filename call readFileToList() and concotinate them
     records_list = []
-    for i in os.listdir(FolderPath):
-        if i.endswith(".json"):
-            a = os.path.join(FolderPath, i)
-            records_list += readFileToList(a)
-        else:
-            continue
+    for root, directories, filenames in os.walk(FolderPath):
+        for filename in filenames:
+            if filename.endswith(".json"):
+                a = os.path.join(root, filename)
+                records_list += readFileToList(a)
+            else:
+                continue
     return records_list
 
 
@@ -203,7 +203,7 @@ def main(argv):
         else:
             records_list = readFileToList(inputfile)
     except Exception, e:
-        print ("Something went wrong:")
+        print("Something went wrong:")
         print e
         raise
         sys.exit(2)
