@@ -90,7 +90,7 @@ def readFileToList(filename):
 
 def stringToHash(string):
     """it will take atribute, probably string and return a big integer"""
-    return int(hashlib.md5(string).hexdigest(), 16)
+    return int(hashlib.md5(string).hexdigest()[1:18], 16)
 
 
 def recordsListTransform(records_list):
