@@ -15,3 +15,41 @@ sys 0m0.126s
 
 (VER=HG1603b REPO="comp.valya" A=/data/cfg/admin; ARCH=slc6_amd64_gcc493; cd /data; $A/InstallDev -A $ARCH -R comp@$VER -s image -v $VER -r comp=$REPO -p "admin frontend backend mongodb dcafpilot")
 ```
+
+# -------------------------------------------------------------------------------------------------------
+# runing DCAFPilot
+remove:
+- timestamp_tr_st
+- timestamp_tr_comp
+
+```bash
+merge_csv --fin=CMS-DMWM-Analytics-data/Popularity/DCAFPilot/data/0.0.3 --fout=2014.csv.gz --verbose
+```
+
+```bash
+transform_csv --fin=test.csv.gz --fout=train_clf.csv.gz --target=timestamp_tr_dlt --target-thr=0 \
+          --drops=timestamp_tr_st,timestamp_tr_comp,job_m_replica,job_metadata|multi_sources
+```
+
+```bash
+model --learner=RandomForestClassifier --idcol=tr_id --target=timestamp_tr_dlt --train-file=JsonToCsvDefault_hash.csv \
+          --scaler=StandardScaler --newdata=valid_clf.csv.gz --predict=pred.txt
+```
+
+
+## how it works with python script
+```python
+print "Hello"
+
+from ml.model import model
+
+training_data = "bla_test/new_0609-0615.csv"
+validation_data = "bla_test/new_0609-0615.csv"
+
+classifiers = "RandomForestRegressor"
+
+drops = "timestamp_tr_st,timestamp_tr_comp,job_m_replica,job_metadata|multi_sources"
+
+model(training_data, validation_data, idcol = "tr_id", drops = drops, tcol = "timestamp_tr_dlt", split = 0, learner = classifiers, ofile="classifiers.txt")
+
+```

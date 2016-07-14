@@ -104,15 +104,19 @@ def recordsListTransform(records_list):
                 if(representsInt(value)):
                     record[key] = int(value)
                 elif(value.upper() == 'TRUE'):
-                    record[key] = True
+                    record[key] = 1
                 elif(value.upper() == 'FALSE'):
-                    record[key] = False
+                    record[key] = 0
                 elif(value == ""):
                     record[key] = cvs_field_sph
                 else:
                     record[key] = stringToHash(value)
             elif(value is None):
                 record[key] = cvs_field_nph
+            elif(value is True):
+                record[key] = 1
+            elif(value is False):
+                record[key] = 0
 
     return records_list
 
