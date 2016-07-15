@@ -99,4 +99,21 @@ because both str and unicode are subclasses of basestring.
 ```
 
 ## python benchmark script 
-https://pypi.python.org/pypi/psutil
+https://pypi.python.org/pypi/psutil 
+
+## how model works with python script
+```python
+print "Hello"
+
+from ml.model import model
+
+training_data = "bla_test/new_0609-0615.csv"
+validation_data = "bla_test/new_0609-0615.csv"
+
+classifiers = "RandomForestRegressor"
+
+drops = "timestamp_tr_st,timestamp_tr_comp,job_m_replica,job_metadata|multi_sources"
+
+model(training_data, validation_data, idcol = "tr_id", drops = drops, tcol = "timestamp_tr_dlt", split = 0, learner = classifiers, ofile="classifiers.txt")
+
+```

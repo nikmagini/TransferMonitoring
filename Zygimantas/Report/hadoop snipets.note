@@ -18,3 +18,4 @@ http://blog.matthewrathbone.com/img/hdfs-cheatsheet.pdf
 ssh  ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no zmatonis@analytix "hdfs dfs -cat <src_in_HDFS> " > <local_dst>
 
 ```
+

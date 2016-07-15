@@ -89,6 +89,8 @@ def readFileToList(filename):
 
 
 def stringToHash(string):
+    # TODO: make a better implementation since I lose to much
+    # data thus records can overlap
     """it will take atribute, probably string and return a big integer"""
     return int(hashlib.md5(string).hexdigest()[1:18], 16)
 

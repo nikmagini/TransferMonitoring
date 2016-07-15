@@ -8,6 +8,11 @@ sys 0m0.126s
 
 ```
 
+```bash
+sshfs zmatonis@lxplus.cern.ch:/afs/cern.ch/user/z/zmatonis  ~/mnt
+
+```
+
 # vm setup
 ```bash
 (cd /data; git clone git://github.com/dmwm/deployment.git cfg && cd cfg && git reset --hard HG1603b)
@@ -27,29 +32,61 @@ merge_csv --fin=CMS-DMWM-Analytics-data/Popularity/DCAFPilot/data/0.0.3 --fout=2
 ```
 
 ```bash
-transform_csv --fin=test.csv.gz --fout=train_clf.csv.gz --target=timestamp_tr_dlt --target-thr=0 \
-          --drops=timestamp_tr_st,timestamp_tr_comp,job_m_replica,job_metadata|multi_sources
+transform_csv --fin=~/private/temp/2016-07-14_hash.csv --fout=train_clf.csv.gz --target=timestamp_tr_dlt --drops='timestamp_tr_st,timestamp_tr_comp,job_m_replica,job_metadata|multi_sources'
 ```
 
 ```bash
-model --learner=RandomForestClassifier --idcol=tr_id --target=timestamp_tr_dlt --train-file=JsonToCsvDefault_hash.csv \
-          --scaler=StandardScaler --newdata=valid_clf.csv.gz --predict=pred.txt
+model --learner=RandomForestRegressor --idcol=tr_id --target=timestamp_tr_dlt --train-file=train.csv \
+          --drops='timestamp_tr_st,timestamp_tr_comp,job_m_replica,job_metadata|multi_sources' --scaler=StandardScaler --newdata=test.csv --predict=pred.txt
+```
+
+```bash
+model --learner=RandomForestRegressor --idcol=tr_id --target=timestamp_tr_dlt --train-file=~/private/temp/2016-07-14_hash.csv           --drops='timestamp_tr_st,timestamp_tr_comp,job_m_replica,job_metadata|multi_sources' --newdata=valid_sclf.csv.gz --scaler=StandardScaler --predict=~/pred.txt --verbose 1
 ```
 
 
-## how it works with python script
-```python
-print "Hello"
+# general comands
 
-from ml.model import model
+```bash
+python jsonUtilities.py -i ../../data/20160629_fts_message_sample.json -o ~/private/temp/2016-07-14
 
-training_data = "bla_test/new_0609-0615.csv"
-validation_data = "bla_test/new_0609-0615.csv"
+cd /afs/cern.ch/user/z/zmatonis/private/transMonData
 
-classifiers = "RandomForestRegressor"
+cd private/DMWMAnalytics/Popularity/DCAFPilot/src/python/DCAF/
+```
 
-drops = "timestamp_tr_st,timestamp_tr_comp,job_m_replica,job_metadata|multi_sources"
 
-model(training_data, validation_data, idcol = "tr_id", drops = drops, tcol = "timestamp_tr_dlt", split = 0, learner = classifiers, ofile="classifiers.txt")
+
+```
+[zmatonis@transmonbig2 ~]$ model --learner=RandomForestRegressor --idcol=tr_id --target=timestamp_tr_dlt --train-file=~/private/temp/2016-07-14_hash.csv           --drops='timestamp_tr_st,timestamp_tr_comp,job_m_replica,job_metadata|multi_sources' --newdata=valid_sclf.csv.gz --scaler=StandardScaler --predict=~/pred.txt --verbose 1
+Pipeline(steps=[('scaler', StandardScaler(copy=True, with_mean=True, with_std=True)), ('clf', RandomForestRegressor(bootstrap=True, criterion='mse', max_depth=None,
+           max_features='auto', max_leaf_nodes=None, min_samples_leaf=1,
+           min_samples_split=2, min_weight_fraction_leaf=0.0,
+           n_estimators=10, n_jobs=1, oob_score=False, random_state=123,
+           verbose=0, warm_start=False))])
+Split level: train 67.0%, validation 33.0%
+idx/limit 0 -1
+Train file ~/private/temp/2016-07-14_hash.csv
+Columns: block_size,buf_size,channel_type,chk_timeout,dest_srm_v,dst_hostname,dst_site_name,dst_url,endpnt,f_size,file_metadata,file_metadata|activity,file_metadata|adler32,file_metadata|dest_rse_id,file_metadata|dst_rse,file_metadata|dst_type,file_metadata|filesize,file_metadata|md5,file_metadata|name,file_metadata|previous_attempt_id,file_metadata|request_id,file_metadata|request_type,file_metadata|scope,file_metadata|src_rse,file_metadata|src_rse_id,file_metadata|src_type,is_recoverable,job_metadata,job_metadata|issuer,job_state,nstreams,retry,retry_max,src_hostname,src_site_name,src_srm_v,src_url,srm_space_token_dst,srm_space_token_src,t__error_message,t_channel,t_error_code,t_failure_phase,t_final_transfer_state,t_timeout,tcp_buf_size,time_srm_fin_end,time_srm_fin_st,time_srm_prep_end,time_srm_prep_st,timestamp_checksum_dest_ended,timestamp_checksum_dest_st,timestamp_chk_src_ended,timestamp_chk_src_st,tr_bt_transfered,tr_error_category,tr_error_scope,tr_timestamp_complete,tr_timestamp_start,user_dn,vo
+train shapes: (10000, 61) (10000,)
+train shapes after splitting: (6700, 61) (6700,)
+Train elapsed time 0.298754930496
+Final Logloss 20.4306825264
+ERROR: no files found for --newdata=valid_sclf.csv.gz
+
+```
+
+## run json utility
+```bash
+python jsonUtilities.py -i ../../data/20160629_fts_message_sample.json -o ~/private/temp/2016-07-14
+```
+
+## script csv to seperate files
+
+```bash
+file=2016-07-14_hash.csv
+head -3001 $file> test.csv
+head -1  $file> train.csv
+tail -7000 $file >> train.csv
 
 ```
