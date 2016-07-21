@@ -8,9 +8,18 @@ sys 0m0.126s
 
 ```
 
+#Random
 ```bash
 sshfs zmatonis@lxplus.cern.ch:/afs/cern.ch/user/z/zmatonis  ~/mnt
 
+python  csvSplit.py -i /tmp/JsonToCsvDefault_hash.csv --otrain /tmp/train.csv --otest /tmp/test.csv
+python jsonUtilities.py -i ../../data/20160629_fts_message_sample.json
+
+# from remote copy to local
+scp zmatonis@lxplus.cern.ch:private/temp/pred.txt /tmp/pred.txt
+
+# awk print only last collumn 
+awk -F"," '{print $NF}' test.csv 
 ```
 
 # vm setup

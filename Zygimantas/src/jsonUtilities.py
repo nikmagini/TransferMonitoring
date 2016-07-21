@@ -92,8 +92,7 @@ def stringToHash(string):
     # TODO: make a better implementation since I lose to much
     # data thus records can overlap
     """it will take atribute, probably string and return a big integer"""
-    return int(hashlib.md5(string).hexdigest()[1:18], 16)
-
+    return int(hashlib.md5(string).hexdigest()[:30], 16)
 
 def recordsListTransform(records_list):
     """Function will take list of dictonaries and transfor
@@ -164,18 +163,24 @@ def main(argv):
         opts, args = getopt.getopt(
             argv, "hi:o:d", ["ifile=", "ofile=", "dir="])
     except getopt.GetoptError:
-        print 'test.py -i <inputfile> -o <outputfile>'
+        print 'jsonUtilities.py -i <inputfile> -o <outputfile>'
+        print 'jsonUtilities.py --dir <inputdir> -o <outputfile>'
+        print "default parameters are taken if arguments are not specified:"
+        print "<inputfile>: " + inputfile
+        print "<inputdir>: " + inputdir
+        print "<outputfile>: " + outputfile + '_org.csv'
+        print "<outputfile>: " + outputfile + '_hash.csv'
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
-            print 'test.py -i <inputfile> -o <outputfile>'
-            print 'test.py --dir <inputdir> -o <outputfile>'
+            print 'jsonUtilities.py -i <inputfile> -o <outputfile>'
+            print 'jsonUtilities.py --dir <inputdir> -o <outputfile>'
             print "default parameters are taken if arguments are not specified:"
             print "<inputfile>: " + inputfile
             print "<inputdir>: " + inputdir
             print "<outputfile>: " + outputfile + '_org.csv'
             print "<outputfile>: " + outputfile + '_hash.csv'
-            sys.exit()
+            sys.exit(2)
         elif opt in ("-i", "--ifile"):
             inputfile = arg
         elif opt in ("-o", "--ofile"):
