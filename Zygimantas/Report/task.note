@@ -1,3 +1,18 @@
+## 07-18 path to aplly patch 
+```bash 
+/data/srv/HG1603b/sw.valya/slc6_amd64_gcc493/cms/DCAFPilot/0.1.24-comp2/lib/python2.7/site-packages/DCAF/ml
+```
+
+### size of sickit learn
+http://stackoverflow.com/questions/28706567/is-it-proper-to-use-float64-data-type-with-scikit-learn-ml-algorithms
+
+```
+Floating Point Primitive Data Types
+Type    Size    Range
+float   32 bits -3.4E+38 to +3.4E+38
+double  64 bits -1.7E+308 to +1.7E+308
+```
+
 
 ## 07-01
 - 2.7 python 

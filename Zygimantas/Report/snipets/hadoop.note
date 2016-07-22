@@ -8,6 +8,7 @@
 # ls
 ```bash
 hdfs dfs -ls -R  /user/wdtmon/fts/2015/09/03/
+# ziureti complete messagus cia 
 
 ```
 
