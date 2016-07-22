@@ -93,4 +93,7 @@ At first I was concerned that by converting _int_ to _float32_ I may lose some d
 ## 2016-07-21
 
 - Create a script csvSplit.py to nicely split csv file to train and test data. Wrote in such a way that it should be able to process huge file. 
-- 
+
+## 2016-07-21
+
+- checkPredictions.py added

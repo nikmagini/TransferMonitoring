@@ -24,4 +24,7 @@ wdir/
 *.predicted
 *.gif
 *.conf
+
+#custom files used for testing
 test.py
+*.r
