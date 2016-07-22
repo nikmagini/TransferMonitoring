@@ -53,7 +53,7 @@ def main(argv):
             count = 0
             total_offset = 0
             for f, b in itertools.izip(real_Readercsv, predicted_val):
-            # TODO: try to catch -1
+                # TODO: try to catch -1
                 String = "{0}, {1}, {2}\n".format(
                     f[label], b.rstrip(), + abs(float(f[label]) - float(b)))
                 results_wr.write(String)

@@ -24,4 +24,4 @@ wdir/
 *.predicted
 *.gif
 *.conf
-
+test.py
