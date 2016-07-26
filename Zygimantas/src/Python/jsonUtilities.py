@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 File       : jsonUtilities.py
 Author     : Zygimantas Matonis

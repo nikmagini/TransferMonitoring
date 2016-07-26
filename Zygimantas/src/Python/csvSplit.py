@@ -1,10 +1,10 @@
+#!/usr/bin/env python
 """
 File       : jsonUtilities.py
 Author     : Zygimantas Matonis
 Description: Read csv and slit to random train/test files given filenames and ratio
 """
 
-# import csv
 import sys
 import getopt  # http://www.tutorialspoint.com/python/python_command_line_arguments.htm
 import random
