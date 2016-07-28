@@ -57,7 +57,7 @@ model --learner=RandomForestRegressor --idcol=tr_id --target=timestamp_tr_dlt --
 # general comands
 
 ```bash
-python jsonUtilities.py -i ../../data/20160629_fts_message_sample.json -o ~/private/temp/2016-07-14
+python jsonUtilities.py -i ../../../data/20160629_fts_message_sample.json -o ~/private/temp/2016-07-14
 
 cd /afs/cern.ch/user/z/zmatonis/private/transMonData
 
