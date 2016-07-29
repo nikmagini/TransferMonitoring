@@ -11,6 +11,9 @@ import os
 import sys
 import getopt  # http://www.tutorialspoint.com/python/python_command_line_arguments.htm
 import hashlib
+import logging
+import inspect
+import types
 
 # global variables
 debug = False        # to output debug info
@@ -21,6 +24,17 @@ cvs_field_nph = -3    # placeeholder for null
 # list of fields that I should put first in CSV file
 important_fields = ['tr_id', 'timestamp_tr_st',
                     'timestamp_tr_comp', 'timestamp_tr_dlt']
+
+# logger and logger config
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+# files
+working_path = os.path.dirname(os.path.abspath(__file__))
+inputfile = os.path.join(working_path, "../../data/testFolder")
+# inputfile = os.path.join(working_path, "../../data/smallJsonData.json")
+outputfile = '/tmp/JsonToCsvDefault'
 
 
 def representsInt(s):
@@ -56,42 +70,29 @@ def reorderKeyList(key_list, import_k_l):
     return key_list
 
 
-def readFolderToList(FolderPath):
+def readFolderToListGenerator(FolderPath):
     """Function takes path to folder, then"""
-    records_list = []
     for root, directories, filenames in os.walk(FolderPath):
         for filename in filenames:
             if filename.endswith(".json"):
                 a = os.path.join(root, filename)
-                records_list += readFileToList(a)
-            else:
-                continue
-    return records_list
+                yield readFileToListGenerator(a)
 
 
-def readFileToList(filename):
+def readFileToListGenerator(filename):
     """Function takes path of file,
     read records one by one and puts it Json objects to list """
-
+    logger.info('Reading file to list: '+ filename)
     # create list of special control charracters
     escapes = ''.join([chr(char) for char in range(1, 32)])
     with open(filename) as json_file:
-        rec_list = []
-        if debug is True:
-            print("-----------")
         for line in json_file:
             json_dict = flatten_dict(json.loads(line.translate(None, escapes)))
-            rec_list.append(json_dict)
-    if debug is True:
-        print rec_list[0]
-        print "-------------"
-        print rec_list[5]
-    return rec_list
+            logger.debug(json_dict)
+            yield json_dict
 
 
 def stringToHash(string):
-    # TODO: make a better implementation since I lose to much
-    # data thus records can overlap
     """it will take atribute, probably string and return a big integer"""
     return int(hashlib.md5(string).hexdigest()[:30], 16)
 
@@ -134,7 +135,7 @@ def jsonListToCSV(jsonList, keysSet, outputPath):
     outputhFile.close()
     return 0
 
-
+# TODO: will not work with yield aproach
 def addDeltaTimeField(jsonList):
     """take list if json dictonaries add to each add atributes"""
     for record_dict in jsonList:
@@ -142,23 +143,29 @@ def addDeltaTimeField(jsonList):
             record_dict['timestamp_tr_dlt'] = \
                 int(record_dict['timestamp_tr_comp'])\
                 - int(record_dict['timestamp_tr_st'])
-        except Exception, e:
-            if debug is True:
-                print("Something was wrong: ", e)
-        else:
-            pass
+        except Exception as e:
+            logger.exception("Fields mising: ", e)
 
     return jsonList
+
+def keys_from_gen(gen_function):
+    key_set = set()
+    for item in gen_function:
+        a = None
+        if isinstance(item, types.GeneratorType):
+            a = keys_from_gen(item)
+        else:
+            a = item.keys()
+        key_set = key_set.union(set(a))
+    return key_set
 
 
 def main(argv):
     """Main function"""
-    working_path = os.path.dirname(os.path.abspath(__file__))
-    inputfile = os.path.join(working_path, "../../data/smallJsonData.json")
-    inputdir = os.path.join(working_path, "../../data/testFolder")
-    outputfile = '/tmp/JsonToCsvDefault'
+
     # flag that says if user wants to scan folder instead of 1 file
-    its_a_dir = False
+    # its_a_dir = False
+    global inputfile, outputfile, working_path
 
     try:
         opts, args = getopt.getopt(
@@ -168,7 +175,6 @@ def main(argv):
         print 'jsonUtilities.py --dir <inputdir> -o <outputfile>'
         print "default parameters are taken if arguments are not specified:"
         print "<inputfile>: " + inputfile
-        print "<inputdir>: " + inputdir
         print "<outputfile>: " + outputfile + '_org.csv'
         print "<outputfile>: " + outputfile + '_hash.csv'
         sys.exit(2)
@@ -178,7 +184,6 @@ def main(argv):
             print 'jsonUtilities.py --dir <inputdir> -o <outputfile>'
             print "default parameters are taken if arguments are not specified:"
             print "<inputfile>: " + inputfile
-            print "<inputdir>: " + inputdir
             print "<outputfile>: " + outputfile + '_org.csv'
             print "<outputfile>: " + outputfile + '_hash.csv'
             sys.exit(2)
@@ -186,54 +191,62 @@ def main(argv):
             inputfile = arg
         elif opt in ("-o", "--ofile"):
             outputfile = arg
-        elif opt in ("-d"):
-            global debug
-            debug = True
-        elif opt in ("--dir"):
-            its_a_dir = True
-            inputdir = arg
+        # elif opt in ("-d"):
+        #     global debug
+        #     debug = True
+        # elif opt in ("--dir"):
+        #     its_a_dir = True
+        #     inputdir = arg
 
-    if debug is True:
-        print("-----------")
-        print 'Input file is "', inputfile
-        print 'Output file is "', outputfile
-        print("-----------")
+    # check if input is file or directory
 
-    # if it is a folder, itarate trough folder, give each file to the
-    # function and concetinate results
     try:
-        if its_a_dir is True:
-            records_list = readFolderToList(inputdir)
+        if os.path.isdir(inputfile):
+            logger.info('Input dir is: '+ inputfile)
+            records_list_generator = readFolderToListGenerator
+        elif os.path.isfile(inputfile):
+            records_list_generator = readFileToListGenerator
+            logger.info('Input file is: '+ inputfile)
         else:
-            records_list = readFileToList(inputfile)
-    except Exception, e:
-        print("Something went wrong:")
-        print e
-        raise
+            logger.warning('Input direction/file '
+                             'does not exist:' + inputfile)
+            sys.exit(2)
+    except Exception as e:
+        logger.exception(e)
         sys.exit(2)
 
-    records_list = addDeltaTimeField(records_list)
+    logger.info('Output file is: '+ outputfile)
+
+    # TODO: should add on the fly, not to seperate list
+    # recordsListGenerator = addDeltaTimeField(recordsListGenerator)
 
     # take all unique keys from list and put to set and order it
-    records_keys = set()
-    for item in records_list:
-        a = item.keys()
-        records_keys = records_keys.union(set(a))
-    records_keys = sorted(records_keys)
+    records_keys = keys_from_gen(records_list_generator(inputfile))
 
-    if debug is True:
-        print records_keys
+    # sort list keys alphabetically
+    records_keys = sorted(records_keys)
+    logger.debug('Sorted key list :')
+    logger.debug(records_keys)
+
+    # for item in recordsListGenerator:
+    # recordsListGenerator = recordsListGenerator(inputfile)
+    # print "--------"
+    # for item in recordsListGenerator:
+    #     print item
 
     records_keys = reorderKeyList(records_keys, important_fields)
-    # write haseverything to CSV file
-    jsonListToCSV(records_list, records_keys, outputfile + '_org.csv')
+
+    # write every thing to CSV file
+    jsonListToCSV(records_list_generator, records_keys, outputfile + '_org.csv')
 
     # write haseverything to CSV file with hashed values
-    records_list = recordsListTransform(records_list)
-    if debug is True:
-        for key, value in records_list[8].items():
-            print key, value, type(value)
-    jsonListToCSV(records_list, records_keys, outputfile + '_hash.csv')
+    records_list_generator = recordsListTransform(records_list_generator)
+
+    # if debug is True:
+    #     for key, value in recordsListGenerator[8].items():
+    #         print key, value, type(value)
+
+    jsonListToCSV(records_list_generator, records_keys, outputfile + '_hash.csv')
 
 
 if __name__ == '__main__':
