@@ -38,7 +38,7 @@ working_path = os.path.dirname(os.path.abspath(__file__))
 # inputfile = os.path.join(working_path, "../../data/smallJsonData.json")
 inputfile = None
 
-outputfile_org = '/tmp/JsonToCsvDefault_org.csv'
+# outputfile_org = '/tmp/JsonToCsvDefault_org.csv'
 outputfile_org = None
 
 # outputfile_hash = '/tmp/JsonToCsvDefault_hash.csv'
