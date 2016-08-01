@@ -16,7 +16,6 @@ import inspect
 import types
 
 # global variables
-debug = False        # to output debug info
 field_delimter = "|"  # to seperate flatened fields
 cvs_field_ph = -1    # placeholder for empty atribute
 cvs_field_sph = -2    # placeeholder for blanklines
@@ -24,17 +23,26 @@ cvs_field_nph = -3    # placeeholder for null
 # list of fields that I should put first in CSV file
 important_fields = ['tr_id', 'timestamp_tr_st',
                     'timestamp_tr_comp', 'timestamp_tr_dlt']
+new_fields =['timestamp_tr_dlt']
 
 # logger and logger config
-
-logging.basicConfig(level=logging.DEBUG)
+# https://docs.python.org/2/library/logging.html
+FORMAT = '%(levelname)s - %(funcName)s - %(lineno)d: %(message)s'
+logging.basicConfig(level=logging.INFO, format=FORMAT)
 logger = logging.getLogger(__name__)
 
-# files
+# files:
 working_path = os.path.dirname(os.path.abspath(__file__))
-inputfile = os.path.join(working_path, "../../data/testFolder")
+
+# inputfile = os.path.join(working_path, "../../data/testFolder")
 # inputfile = os.path.join(working_path, "../../data/smallJsonData.json")
-outputfile = '/tmp/JsonToCsvDefault'
+inputfile = None
+
+outputfile_org = '/tmp/JsonToCsvDefault_org.csv'
+outputfile_org = None
+
+# outputfile_hash = '/tmp/JsonToCsvDefault_hash.csv'
+outputfile_hash = None
 
 
 def representsInt(s):
@@ -47,7 +55,7 @@ def representsInt(s):
 
 
 def flatten_dict(d):
-    """takes dict object and flatens it using dot notation"""
+    """takes dict object and flatens it using delimeter """
     def items():
         for key, value in d.items():
             if isinstance(value, dict):
@@ -59,8 +67,13 @@ def flatten_dict(d):
     return dict(items())
 
 
-def reorderKeyList(key_list, import_k_l):
+def reorderKeyList(key_list, import_k_l,new_fields):
     """put important keys in front of list"""
+
+    # and new fields to list
+    key_list = key_list + new_fields
+
+    # reoder keys
     for key in import_k_l:
         try:
             key_list.remove(key)
@@ -71,18 +84,29 @@ def reorderKeyList(key_list, import_k_l):
 
 
 def readFolderToListGenerator(FolderPath):
-    """Function takes path to folder, then"""
+    """
+    Function takes path to folder, then
+    calls readFileToListGenerator() and yields
+    dict type object
+    """
     for root, directories, filenames in os.walk(FolderPath):
         for filename in filenames:
             if filename.endswith(".json"):
                 a = os.path.join(root, filename)
-                yield readFileToListGenerator(a)
-
+                for json_dict in readFileToListGenerator(a):
+                    yield json_dict
 
 def readFileToListGenerator(filename):
-    """Function takes path of file,
-    read records one by one and puts it Json objects to list """
-    logger.info('Reading file to list: '+ filename)
+    """
+    :param filename: path to file
+    :return json_dict: dict{} type object
+
+    Function takes path of file,
+    read records one by one and yields
+    dict type object with json record data already flatened
+    """
+
+    logger.info('Reading file: %s', filename)
     # create list of special control charracters
     escapes = ''.join([chr(char) for char in range(1, 32)])
     with open(filename) as json_file:
@@ -96,59 +120,81 @@ def stringToHash(string):
     """it will take atribute, probably string and return a big integer"""
     return int(hashlib.md5(string).hexdigest()[:30], 16)
 
-def recordsListTransform(records_list):
-    """Function will take list of dictonaries and transfor
-    its artibutes.
+
+def recordsListTransform(records_dict):
+    """
+    Function will dictonary and transfor its artibutes.
     If it is a string, transform it to either primary type [int|boolean|etc]
-    or to hash number"""
-    for record in records_list:
-        for key, value in record.items():
-            if isinstance(value, basestring):
-                if(representsInt(value)):
-                    record[key] = int(value)
-                elif(value.upper() == 'TRUE'):
-                    record[key] = 1
-                elif(value.upper() == 'FALSE'):
-                    record[key] = 0
-                elif(value == ""):
-                    record[key] = cvs_field_sph
-                else:
-                    record[key] = stringToHash(value)
-            elif(value is None):
-                record[key] = cvs_field_nph
-            elif(value is True):
-                record[key] = 1
-            elif(value is False):
-                record[key] = 0
+    or to hash number
+    """
 
-    return records_list
+    for key, value in records_dict.items():
+        if isinstance(value, basestring):
+            if(representsInt(value)):
+                records_dict[key] = int(value)
+            elif(value.upper() == 'TRUE'):
+                records_dict[key] = 1
+            elif(value.upper() == 'FALSE'):
+                records_dict[key] = 0
+            elif(value == ""):
+                records_dict[key] = cvs_field_sph
+            else:
+                records_dict[key] = stringToHash(value)
+        elif(value is None):
+            records_dict[key] = cvs_field_nph
+        elif(value is True):
+            records_dict[key] = 1
+        elif(value is False):
+            records_dict[key] = 0
+    return records_dict
 
 
-def jsonListToCSV(jsonList, keysSet, outputPath):
-    """Function that proceses list and output results to Csv file"""
+def jsonListToCSV(jsonList, keysSet, outputPath, hash_f=False ):
+    """
+    Function that processes list and output results to Csv file
+    """
+
     outputhFile = open(outputPath, 'w')
     csvwriter = csv.DictWriter(
         outputhFile, fieldnames=keysSet, restval=cvs_field_ph)
     csvwriter.writeheader()
+    logger.debug('File writing')
     for record_dict in jsonList:
+        record_dict = addDeltaTimeField(record_dict)
+        if hash_f is True: # to hash values
+            record_dict = recordsListTransform(record_dict)
+
+        logger.debug(record_dict)
         csvwriter.writerow(record_dict)
     outputhFile.close()
     return 0
 
-# TODO: will not work with yield aproach
-def addDeltaTimeField(jsonList):
-    """take list if json dictonaries add to each add atributes"""
-    for record_dict in jsonList:
-        try:
-            record_dict['timestamp_tr_dlt'] = \
-                int(record_dict['timestamp_tr_comp'])\
-                - int(record_dict['timestamp_tr_st'])
-        except Exception as e:
-            logger.exception("Fields mising: ", e)
-
-    return jsonList
+def addDeltaTimeField(jsonDict):
+    """
+    :param jsonDict : dict{}
+    :return josnDict : dict{}
+    take dict{} object and add new atribute 'timestamp_tr_dlt'
+    """
+    try:
+        jsonDict['timestamp_tr_dlt'] = \
+            int(jsonDict['timestamp_tr_comp'])\
+            - int(jsonDict['timestamp_tr_st'])
+    except Exception as e:
+        # in case timestamp_tr_comp and timestamp_tr_st
+        # are empty
+        logger.debug(e)
+        jsonDict['timestamp_tr_dlt'] = cvs_field_ph
+    return jsonDict
 
 def keys_from_gen(gen_function):
+    '''
+    :param gen_function: takes generator and extracts unique dictonary field names
+    :return: set()
+    '''
+    '''
+    :param gen_function:
+    :return:
+    '''
     key_set = set()
     for item in gen_function:
         a = None
@@ -162,95 +208,91 @@ def keys_from_gen(gen_function):
 
 def main(argv):
     """Main function"""
+    global inputfile,  outputfile_org, outputfile_hash, working_path
 
-    # flag that says if user wants to scan folder instead of 1 file
-    # its_a_dir = False
-    global inputfile, outputfile, working_path
+    message= 'Convertes .json file/folder with .json to .csv\n' \
+             'To run :\n' \
+             'jsonUtilities.py --ifile <inputfile.json|dir> --ofile <outputfile.csv> \n\n' \
+             '--ohfile <output_hashedfile.csv> --log <LEVEL>\n\n' \
+             'example: \n' \
+             'jsonUtilities.py --ifile ../../data/testFolder --ohfile ' \
+             '/tmp/output_hashed.csv --log WARNING \n'\
+             '-h : shows this help \n' \
+             '-i/--ifile : input file or a directory \n' \
+             '-o/--ofile : path/to/extracted/output.csv \n'\
+             '--ohfile : path/to/hashed/output.csv \n' \
+             '--log : message level [DEBUG|INFO|WARNING|ERROR|CRITICAL] \n'
 
     try:
         opts, args = getopt.getopt(
-            argv, "hi:o:d", ["ifile=", "ofile=", "dir="])
+            argv, "hi:o:", ["ifile=", "ofile=", "ohfile=","log="])
     except getopt.GetoptError:
-        print 'jsonUtilities.py -i <inputfile> -o <outputfile>'
-        print 'jsonUtilities.py --dir <inputdir> -o <outputfile>'
-        print "default parameters are taken if arguments are not specified:"
-        print "<inputfile>: " + inputfile
-        print "<outputfile>: " + outputfile + '_org.csv'
-        print "<outputfile>: " + outputfile + '_hash.csv'
+        print('ERROR:Wrong arguments'
+              'run \'jsonUtilities.py -h\' for more info')
         sys.exit(2)
+
     for opt, arg in opts:
         if opt == '-h':
-            print 'jsonUtilities.py -i <inputfile> -o <outputfile>'
-            print 'jsonUtilities.py --dir <inputdir> -o <outputfile>'
-            print "default parameters are taken if arguments are not specified:"
-            print "<inputfile>: " + inputfile
-            print "<outputfile>: " + outputfile + '_org.csv'
-            print "<outputfile>: " + outputfile + '_hash.csv'
+            print(message)
             sys.exit(2)
         elif opt in ("-i", "--ifile"):
             inputfile = arg
         elif opt in ("-o", "--ofile"):
-            outputfile = arg
-        # elif opt in ("-d"):
-        #     global debug
-        #     debug = True
-        # elif opt in ("--dir"):
-        #     its_a_dir = True
-        #     inputdir = arg
+            outputfile_org = arg
+        elif opt == "--ohfile":
+            outputfile_hash = arg
+        elif opt == '--log':
+            try:
+                logger.setLevel(arg.upper())
+            except Exception as e:
+                logger.warning('%s, using INFO logging level ',e)
 
+    if not (inputfile and (outputfile_hash or outputfile_org)):
+        print('Atleast input and one output parameter should be given, '
+              'run \'jsonUtilities.py -h\' for more info')
+        sys.exit(2)
+
+
+    # end of user input
+    # ---------------
     # check if input is file or directory
-
     try:
         if os.path.isdir(inputfile):
-            logger.info('Input dir is: '+ inputfile)
+            logger.info('Input directory is: %s', inputfile)
             records_list_generator = readFolderToListGenerator
         elif os.path.isfile(inputfile):
             records_list_generator = readFileToListGenerator
-            logger.info('Input file is: '+ inputfile)
+            logger.info('Input file is: %s', inputfile)
         else:
             logger.warning('Input direction/file '
-                             'does not exist:' + inputfile)
+                             'does not exist: %s', inputfile)
             sys.exit(2)
     except Exception as e:
         logger.exception(e)
         sys.exit(2)
-
-    logger.info('Output file is: '+ outputfile)
-
-    # TODO: should add on the fly, not to seperate list
-    # recordsListGenerator = addDeltaTimeField(recordsListGenerator)
+    logger.info('Output file file with original values: %s', outputfile_org)
+    logger.info('Output file with hashed values: %s', outputfile_hash)
+    # end of file checking
+    # ---------------
 
     # take all unique keys from list and put to set and order it
     records_keys = keys_from_gen(records_list_generator(inputfile))
 
     # sort list keys alphabetically
     records_keys = sorted(records_keys)
-    logger.debug('Sorted key list :')
-    logger.debug(records_keys)
 
-    # for item in recordsListGenerator:
-    # recordsListGenerator = recordsListGenerator(inputfile)
-    # print "--------"
-    # for item in recordsListGenerator:
-    #     print item
-
-    records_keys = reorderKeyList(records_keys, important_fields)
+    # add new fiels and change few fields position
+    records_keys = reorderKeyList(records_keys, important_fields,new_fields)
+    logger.debug('Sorted key list : %s', records_keys)
 
     # write every thing to CSV file
-    jsonListToCSV(records_list_generator, records_keys, outputfile + '_org.csv')
+    if outputfile_org:
+        jsonListToCSV(records_list_generator(inputfile), records_keys, outputfile_org, hash_f=False)
 
-    # write haseverything to CSV file with hashed values
-    records_list_generator = recordsListTransform(records_list_generator)
-
-    # if debug is True:
-    #     for key, value in recordsListGenerator[8].items():
-    #         print key, value, type(value)
-
-    jsonListToCSV(records_list_generator, records_keys, outputfile + '_hash.csv')
+    # write every thing to CSV file with Hashed values
+    if outputfile_hash:
+        jsonListToCSV(records_list_generator(inputfile), records_keys, outputfile_hash, hash_f=True )
 
 
 if __name__ == '__main__':
     main(sys.argv[1:])
-
-    # TODO: use log file instead of print (tmp/filename-date.txt(?))
-    # TODO: put all variable declaration at the begining of script
