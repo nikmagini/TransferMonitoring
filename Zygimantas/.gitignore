@@ -25,8 +25,13 @@ wdir/
 *.gif
 *.conf
 
-#custom files used for testing
-test.py
+#IDEA setup
 *.r
 .idea
+
+#custom files used for testing
+test.py
 src/Python/jsonUtilitiesBig.py
+jsonUtilOld.py
+Test-Displaying corelation
+.~lock*
