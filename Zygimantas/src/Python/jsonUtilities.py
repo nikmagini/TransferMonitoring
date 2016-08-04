@@ -14,6 +14,8 @@ import hashlib
 import logging
 import types
 import math
+import numpy as np
+import re
 
 from config import drop_out_colums as drop_fields
 
@@ -26,6 +28,9 @@ cvs_field_nph = -3    # placeeholder for null
 important_fields = ['tr_id', 'timestamp_tr_st']
 new_fields = ['timestamp_tr_dlt']
 
+# patter matcher used to match if string is float in
+# decimal notation
+pattern = re.compile("^[-+]?\d+\.\d+$")
 
 # logger and logger config
 # https://docs.python.org/2/library/logging.html
@@ -62,11 +67,17 @@ def representsInt(s):
         return False
 
 
-def representsFloat(s):
-    """check if string can be typecasted to float"""
+def representsDecimalFloat(s):
+    """
+    check if string decimal float and
+    can be typecasted to float
+    """
     try:
-        float(s)
-        return True
+        if pattern.match(s):
+            float(s)
+            return True
+        else:
+            return False
     except ValueError:
         return False
 
@@ -136,7 +147,7 @@ def readFileToListGenerator(filename):
 
 def stringToHash(string):
     """it will take atribute, probably string and return a big integer"""
-    # return int(hashlib.md5(string).hexdigest()[:16], 16)
+    # return int(hashlib.md5(string).hexdigest()[:30], 16)
     return math.log(int(hashlib.md5(string).hexdigest(), 16))
 
 
@@ -151,8 +162,9 @@ def recordsListTransform(records_dict):
         if isinstance(value, basestring):
             if(representsInt(value)):
                 records_dict[key] = int(value)
-            elif(representsFloat(value)):
+            elif(representsDecimalFloat(value)):
                 records_dict[key] = float(value)
+                print(key)
             elif(value.upper() == 'TRUE'):
                 records_dict[key] = 1
             elif(value.upper() == 'FALSE'):
