@@ -30,7 +30,7 @@ new_fields = ['timestamp_tr_dlt']
 
 # patter matcher used to match if string is float in
 # decimal notation
-pattern = re.compile("^[-+]?\d+\.\d+$")
+pattern = re.compile("^[-+]?\d*\.\d+$")
 
 # logger and logger config
 # https://docs.python.org/2/library/logging.html
