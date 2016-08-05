@@ -97,3 +97,52 @@ because both str and unicode are subclasses of basestring.
     a, b = i.index('password2'), i.index('password1')
     i[b], i[a] = i[a], i[b]
 ```
+
+## python benchmark script 
+https://pypi.python.org/pypi/psutil 
+
+## how model works with python script
+```python
+print "Hello"
+
+from ml.model import model
+
+training_data = "bla_test/new_0609-0615.csv"
+validation_data = "bla_test/new_0609-0615.csv"
+
+classifiers = "RandomForestRegressor"
+
+drops = "timestamp_tr_st,timestamp_tr_comp,job_m_replica,job_metadata|multi_sources"
+
+model(training_data, validation_data, idcol = "tr_id", drops = drops, tcol = "timestamp_tr_dlt", split = 0, learner = classifiers, ofile="classifiers.txt")
+
+```
+
+## adelinos pasiulimas vietoje hash
+
+```python
+def writeToFile():
+    with open("bnababab","w") as f:
+        f.write(text)
+
+
+dic={"kaka":1,"kakakakakka":2}
+
+def writeToDic(dic, string):
+    for  key in dic.keys:
+        if string == key:
+            return int
+    dic.update({string:dic.lenght+1})
+
+```
+
+# reading file by slice 
+islice() can be used to get the next n items of an iterator. Thus, list(islice(f, n)) will return a list of the next n lines of the file f. Using this inside a loop will give you the file in chunks of n lines. At the end of the file, the list might be shorter, and finally the call will return an empty list.
+
+with open(...) as f:
+    while True:
+        next_n_lines = list(islice(f, n))
+        if not next_n_lines:
+            break
+        # process next_n_lines
+        

@@ -25,3 +25,8 @@ wdir/
 *.gif
 *.conf
 
+#custom files used for testing
+test.py
+*.r
+.idea
+src/Python/jsonUtilitiesBig.py
