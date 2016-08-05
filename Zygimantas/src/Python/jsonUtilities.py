@@ -14,19 +14,37 @@ import hashlib
 import logging
 import types
 import math
-import numpy as np
 import re
 
-from config import drop_out_colums as drop_fields
 
 # global variables
 field_delimter = "|"  # to seperate flatened fields
 cvs_field_ph = -1    # placeholder for empty atribute
 cvs_field_sph = -2    # placeeholder for blanklines
 cvs_field_nph = -3    # placeeholder for null
+
+
 # list of fields that I should put first in CSV file
 important_fields = ['tr_id', 'timestamp_tr_st']
+# new fields I will create
 new_fields = ['timestamp_tr_dlt']
+# columns that are output and cant be used with ML
+# so should be dropped out
+drop_fields = ['timestamp_tr_comp',
+                   'timestamp_chk_src_ended',
+                   'timestamp_checksum_dest_ended',
+                   'timestamp_checksum_dest_ended',
+                   'tr_error_scope',
+                   't_failure_phase',
+                   'tr_error_category',
+                   't_final_transfer_state',
+                   'tr_bt_transfered',
+                   'time_srm_prep_end',
+                   'time_srm_fin_end',
+                   't__error_message',
+                   'tr_timestamp_complete'
+                   't_error_code'
+                   ]
 
 # patter matcher used to match if string is float in
 # decimal notation
@@ -42,20 +60,20 @@ logger = logging.getLogger(__name__)
 # files:
 working_path = os.path.dirname(os.path.abspath(__file__))
 
-inputfile = os.path.join(
-    working_path, "../../../data/20160629_fts_message_sample.json")
+# inputfile = os.path.join(
+#     working_path, "../../../data/20160629_fts_message_sample.json")
 # inputfile = os.path.join(working_path, "../../../data/big.json")
 # inputfile = os.path.join(working_path, "../../data/testFolder")
 # inputfile = os.path.join(working_path, "../../data/smallJsonData.json")
-# inputfile = None
+inputfile = None
 
 # outputfile_org = '/tmp/JsonToCsvDefault_org.csv'
 outputfile_org = None
 
 # outputfile_hash = '/tmp/JsonToCsvDefault_hash.csv'
-outputfile_hash = os.path.join(
-    working_path, "../../data/output/json_hashed.csv")
-# outputfile_hash = None
+# outputfile_hash = os.path.join(
+#     working_path, "../../data/output/json_hashed.csv")
+outputfile_hash = None
 
 
 def representsInt(s):
@@ -164,7 +182,6 @@ def recordsListTransform(records_dict):
                 records_dict[key] = int(value)
             elif(representsDecimalFloat(value)):
                 records_dict[key] = float(value)
-                print(key)
             elif(value.upper() == 'TRUE'):
                 records_dict[key] = 1
             elif(value.upper() == 'FALSE'):
