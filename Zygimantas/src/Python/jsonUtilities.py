@@ -20,31 +20,31 @@ import re
 # global variables
 field_delimter = "|"  # to seperate flatened fields
 cvs_field_ph = -1    # placeholder for empty atribute
-cvs_field_sph = -2    # placeeholder for blanklines
-cvs_field_nph = -3    # placeeholder for null
+cvs_field_sph = 0    # placeeholder for blanklines
+cvs_field_nph = 0    # placeeholder for null
 
 
-# list of fields that I should put first in CSV file
+# list of fields that I should put at the end of CSV file
 important_fields = ['tr_id', 'timestamp_tr_st']
 # new fields I will create
 new_fields = ['timestamp_tr_dlt']
 # columns that are output and cant be used with ML
 # so should be dropped out
 drop_fields = ['timestamp_tr_comp',
-                   'timestamp_chk_src_ended',
-                   'timestamp_checksum_dest_ended',
-                   'timestamp_checksum_dest_ended',
-                   'tr_error_scope',
-                   't_failure_phase',
-                   'tr_error_category',
-                   't_final_transfer_state',
-                   'tr_bt_transfered',
-                   'time_srm_prep_end',
-                   'time_srm_fin_end',
-                   't__error_message',
-                   'tr_timestamp_complete'
-                   't_error_code'
-                   ]
+               'timestamp_chk_src_ended',
+               'timestamp_checksum_dest_ended',
+               'timestamp_checksum_dest_ended',
+               'tr_error_scope',
+               't_failure_phase',
+               'tr_error_category',
+               't_final_transfer_state',
+               'tr_bt_transfered',
+               'time_srm_prep_end',
+               'time_srm_fin_end',
+               't__error_message',
+               'tr_timestamp_complete'
+               't_error_code'
+               ]
 
 # patter matcher used to match if string is float in
 # decimal notation
