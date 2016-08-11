@@ -8,6 +8,19 @@ sys 0m0.126s
 
 ```
 
+#  find
+
+```bash
+# Use find:
+
+find .
+find /home/dreftymac
+# If you want files only (omit directories, devices, etc):
+
+find . -type f
+find /home/dreftymac -type f
+```
+
 # sshfs file system
 
 ```bash
