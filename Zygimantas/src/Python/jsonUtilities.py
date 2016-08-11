@@ -15,6 +15,8 @@ import logging
 import types
 import math
 import re
+from json import JSONDecoder
+from functools import partial
 
 
 # global variables
@@ -65,15 +67,16 @@ working_path = os.path.dirname(os.path.abspath(__file__))
 # inputfile = os.path.join(working_path, "../../../data/big.json")
 # inputfile = os.path.join(working_path, "../../data/testFolder")
 # inputfile = os.path.join(working_path, "../../data/smallJsonData.json")
+# inputfile = os.path.join(working_path, "../../data/smallJsonData_malformed.json")
 inputfile = None
 
 # outputfile_org = '/tmp/JsonToCsvDefault_org.csv'
 outputfile_org = None
 
 # outputfile_hash = '/tmp/JsonToCsvDefault_hash.csv'
-# outputfile_hash = os.path.join(
-#     working_path, "../../data/output/json_hashed.csv")
-outputfile_hash = None
+outputfile_hash = os.path.join(
+    working_path, "../../data/output/json_hashed2.csv")
+# outputfile_hash = None
 
 
 def representsInt(s):
@@ -140,27 +143,47 @@ def readFolderToListGenerator(FolderPath):
                     yield json_dict
 
 
-def readFileToListGenerator(filename):
-    """
-    :param filename: path to file
-    :return json_dict: dict{} type object
-
-    Function takes path of file,
-    read records one by one and yields
-    dict type object with json record data already flatened
-    """
-
+# def json_parse(fileobj, decoder=JSONDecoder(), buffersize=2048):
+def readFileToListGenerator(filename, decoder=JSONDecoder(), buffersize=2048):
     logger.info('Reading file: %s', filename)
-    # create list of special control charracters
     escapes = ''.join([chr(char) for char in range(1, 32)])
-    with open(filename) as json_file:
-        for line in json_file:
-            try:
-                json_dict = flatten_dict(
-                    json.loads(line.translate(None, escapes)))
-                yield json_dict
-            except Exception as e:
-                logger.exception(e)
+    buffer = ''
+    with open(filename) as fileobj:
+        for chunk in iter(partial(fileobj.read, buffersize), ''):
+            buffer += chunk.translate(None, escapes)
+            while buffer:
+                try:
+                    buffer = buffer[buffer.index('{'):]
+                    result, index = decoder.raw_decode(buffer)
+                    # return dictonary object, flatened
+                    yield flatten_dict(result)
+                    buffer = buffer[index:]
+                except ValueError:
+                    # Not enough data to decode, read more
+                    break
+
+
+# def readFileToListGenerator2(filename):
+#     """
+#     :param filename: path to file
+#     :return json_dict: dict{} type object
+
+#     Function takes path of file,
+#     read records one by one and yields
+#     dict type object with json record data already flatened
+#     """
+
+#     logger.info('Reading file: %s', filename)
+#     # create list of special control charracters to escape
+#     escapes = ''.join([chr(char) for char in range(1, 32)])
+#     with open(filename) as json_file:
+#         for line in json_file:
+#             try:
+#                 json_dict = flatten_dict(
+#                     json.loads(line.translate(None, escapes)))
+#                 yield json_dict
+#             except Exception as e:
+#                 logger.exception(e)
 
 
 def stringToHash(string):

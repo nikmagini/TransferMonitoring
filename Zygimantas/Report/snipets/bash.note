@@ -1,4 +1,11 @@
-#benchmark scrpt time 
+
+# setup
+```bash
+export PYTHONPATH=/home/zygis/_Projektai/CERN/xgboost/python-package
+
+```
+
+# benchmark scrpt time 
 ```bash 
 [zmatonis@transmonbig2 src]$ time python jsonUtilities.py -i ../../data/20160629_fts_message_sample.json 
 
