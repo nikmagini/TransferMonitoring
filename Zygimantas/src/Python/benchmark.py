@@ -77,6 +77,8 @@ for model_n, model_f in model_func_l:
             # returns maximu
             mem_usage = memory_usage((model.fit, [X_train, y_train]), max_usage=True)
         y_pred = model.predict(X_test)
+        # y_test_f = list(map(exp_2, y_test))
+        # y_pred_f = list(map(exp_2, y_pred))
         y_test_f = list(map(exp_2, min_max_scaler_y.inverse_transform(y_test)))
         y_pred_f = list(map(exp_2, min_max_scaler_y.inverse_transform(y_pred)))
         results_d = {
@@ -87,12 +89,13 @@ for model_n, model_f in model_func_l:
             '4.MAE': mean_absolute_error(y_test_f, y_pred_f),
             '5.RMSE': mean_squared_error(y_test_f, y_pred_f)
         }
-        i = 0
-        for answ, pred in zip(y_test_f, y_pred_f):
-            i +=1
-            print ('{}=>{}'.format(answ,pred))
-            if i > 20:
-                break
+        results_list.append(results_d)
+        # i = 0
+        # for answ, pred in zip(y_test_f, y_pred_f):
+        #     i +=1
+        #     print ('{}=>{}'.format(answ,pred))
+        #     if i > 100:
+        #         break
 
     outputhPath = '../../data/output/' + model_n +'.csv'
     keysSet = sorted(results_list[0].keys())
