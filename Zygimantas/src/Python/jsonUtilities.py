@@ -230,7 +230,7 @@ def jsonListToCSV(jsonList, keysSet, outputPath, hash_f=False):
     outputhFile = open(outputPath, 'w')
     csvwriter = csv.DictWriter(
         outputhFile, fieldnames=keysSet, restval=cvs_field_ph,
-        extrasaction='ignore')
+        extrasaction='ignore',lineterminator='\n')
     csvwriter.writeheader()
     logger.debug('Writing File')
     try:
