@@ -2,7 +2,8 @@
 """
 File       : jsonUtilities.py
 Author     : Zygimantas Matonis
-Description: Script to convert Json records to CSV
+Description: Script to convert JSON records to CSV. It flatens JSON, drops fields,
+             add import fields at the end of CSV and creates new atribute - 'timestamp_tr_dlt'.
 """
 
 import json
@@ -28,8 +29,10 @@ cvs_field_nph = 0    # placeeholder for null
 
 # list of fields that I should put at the end of CSV file
 important_fields = ['tr_id', 'timestamp_tr_st']
+
 # new fields I will create
 new_fields = ['timestamp_tr_dlt']
+
 # columns that are output and cant be used with ML
 # so should be dropped out
 drop_fields = ['timestamp_tr_comp',
@@ -230,7 +233,7 @@ def jsonListToCSV(jsonList, keysSet, outputPath, hash_f=False):
     outputhFile = open(outputPath, 'w')
     csvwriter = csv.DictWriter(
         outputhFile, fieldnames=keysSet, restval=cvs_field_ph,
-        extrasaction='ignore',lineterminator='\n')
+        extrasaction='ignore', lineterminator='\n')
     csvwriter.writeheader()
     logger.debug('Writing File')
     try:
