@@ -90,7 +90,7 @@ Follow this tutorial to setup certificates. Without them you will get errors:
 https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookStartingGrid#ObtainingCert
 
 
-For all 3rd party libraries like *memory_profiler* that I use for the project, they should installed with *pip2.7*, so install it first.
+For all 3rd party libraries like *memory_profiler* that I use for the project, they should be installed with *pip2.7*, so install it first.
 
 # Data location
 Follow top level README.md about that.
