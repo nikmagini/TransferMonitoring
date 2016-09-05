@@ -1,16 +1,59 @@
-#benchmark scrpt time 
+## Paths on VM
+```bash
+# data
+cd /afs/cern.ch/work/z/zmatonis/private/TransMonData
+
+# test data 
+cd /afs/cern.ch/user/z/zmatonis/private/transMonData
+
+# code
+```
+
+##setup
+```bash
+#to put xboost library to PATH 
+export PYTHONPATH=$PYTHONPATH:/home/zygis/_Projektai/CERN/xgboost/python-package
+
+# to call Python code from anywhere
+export PYTHONPATH=$PYTHONPATH:/home/zygis/_Projektai/CERN/xgboost/python-package
+export PYTHONPATH=$PYTHONPATH:/afs/cern.ch/user/z/zmatonis/private/TransferMonitoring_remote/Zygimantas/src/Python
+```
+
+##benchmark scrpt time 
 ```bash 
 [zmatonis@transmonbig2 src]$ time python jsonUtilities.py -i ../../data/20160629_fts_message_sample.json 
 
 real    0m6.177s
 user    0m5.181s
-sys 0m0.126s
+sys     0m0.126s
 
 ```
 
-#Random
+## find
+
+```bash
+# Use find:
+
+find .
+find /home/dreftymac
+# If you want files only (omit directories, devices, etc):
+
+find . -type f
+find /home/dreftymac -type f
+```
+
+## sshfs file system
+
 ```bash
 sshfs zmatonis@lxplus.cern.ch:/afs/cern.ch/user/z/zmatonis  ~/mnt
+sshfs zmatonis@lxplus.cern.ch:/afs/cern.ch/work/z/zmatonis/private/TransMonData ~/mnt
+
+fusermount -u ~/mnt
+
+```
+
+## Random
+```bash
 
 python  csvSplit.py -i /tmp/JsonToCsvDefault_hash.csv --otrain /tmp/train.csv --otest /tmp/test.csv
 python jsonUtilities.py -i ../../data/20160629_fts_message_sample.json
@@ -20,9 +63,12 @@ scp zmatonis@lxplus.cern.ch:private/temp/pred.txt /tmp/pred.txt
 
 # awk print only last collumn 
 awk -F"," '{print $NF}' test.csv 
+
+# remove carriage return
+sed -i 's/\r//' CRLF.txt
 ```
 
-# vm setup
+## vm setup
 ```bash
 (cd /data; git clone git://github.com/dmwm/deployment.git cfg && cd cfg && git reset --hard HG1603b)
 
@@ -31,6 +77,7 @@ awk -F"," '{print $NF}' test.csv
 ```
 
 # -------------------------------------------------------------------------------------------------------
+
 # runing DCAFPilot
 remove:
 - timestamp_tr_st
@@ -86,6 +133,7 @@ ERROR: no files found for --newdata=valid_sclf.csv.gz
 ```
 
 ## run json utility
+
 ```bash
 python jsonUtilities.py -i ../../data/20160629_fts_message_sample.json -o ~/private/temp/2016-07-14
 ```
@@ -97,5 +145,4 @@ file=2016-07-14_hash.csv
 head -3001 $file> test.csv
 head -1  $file> train.csv
 tail -7000 $file >> train.csv
-
 ```
